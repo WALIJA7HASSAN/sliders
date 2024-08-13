@@ -52,6 +52,7 @@ body{
 .icon-left{
     top: 49%;
     left: 1rem;
+    z-index: 1000;
 }
 .testimonial-text-container{
     display: flex;
