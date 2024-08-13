@@ -161,6 +161,7 @@ padding: 1rem;
 }
 .alumuni-img img{
     width: 100%;
+    
 
 }
 .alumuni-occupation{
@@ -180,6 +181,7 @@ padding: 1rem;
     transition: transform 0.4s ease;
     width: 100%;
     overflow: hidden;
+    animation: slideright 0.5s ease;
 
 }
 .alumni-text {
@@ -187,7 +189,13 @@ padding: 1rem;
     min-width: 100%;
     flex-shrink: 0;
     padding: 0 2.5rem;
+    
 }
+.dragged {
+    user-select: none;
+    cursor: grabbing;
+}
+
 
 
 @media screen and (min-width:769px) {
@@ -230,4 +238,8 @@ display: grid;
     align-self: center;
     
 }
+.alumuni-text img {
+        width: 100%; 
+        object-fit: contain;
+    }
 }

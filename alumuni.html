@@ -29,7 +29,8 @@
 
 
     <!-- <script src="./app.js"></script> -->
-     <script>const alumuni = [
+     <script>
+     const alumuni = [
   {
     text: '“I took the leap of faith, and it has massively changed my business. . . I want to be a business owner, not an operator.” ',
     name: '– COURTNEY EPPS',
@@ -87,16 +88,19 @@
     imgUrl: '#',
   },]
 // Alumni section variables
+// Alumni section variables
 const alumniSliderSpansContainer = document.querySelector('.alumuni .slider-spans-container')
 const alumniTextContainer = document.querySelector('.alumuni-text-container')
 let alumniCurrentIndex = 0
 let alumniAutoSlideInterval
+let isDragging = false
+let startX, endX
 
-// Create alumni HTML
+// Create alumni HTML (same as before)
 function createAlumniHTML(alumnus) {
   return `
     <div class="alumuni-text">
-      <a href="${alumnus.imgUrl}">
+      <a href="${alumnus.imgUrl}" class="alumni-link">
         <img src="${alumnus.imgsrc}" alt="">
       </a>
       <div class="alumuni-testimnonials">
@@ -108,20 +112,37 @@ function createAlumniHTML(alumnus) {
   `
 }
 
+
+
 // Create slider span HTML
 function createAlumniSliderSpanHTML(index) {
   return `<li class="slider-span-container" data-index="${index}"><span class="slider-span"></span></li>`
 }
 
 // Render alumni testimonials
+// Render alumni testimonials
 function renderAlumni() {
-  alumniTextContainer.innerHTML = createAlumniHTML(alumuni[alumniCurrentIndex])
+  // Update content
+  alumniTextContainer.innerHTML = createAlumniHTML(alumuni[alumniCurrentIndex]);
+  
+  // Add slide-right class to trigger the animation
+  const alumniText = alumniTextContainer.querySelector('.alumuni-text');
+  alumniText.classList.add('slide-right');
+  
+  // Update the slider spans and active span
   alumniSliderSpansContainer.innerHTML = alumuni
     .map((_, index) => createAlumniSliderSpanHTML(index))
-    .join('')
-  updateAlumniActiveSpan(alumniCurrentIndex) // Initialize the first testimonial
-  initializeAlumniSliderSpanEventListeners() // Reattach event listeners
+    .join('');
+  updateAlumniActiveSpan(alumniCurrentIndex); // Initialize the first testimonial
+  initializeAlumniSliderSpanEventListeners(); // Reattach event listeners
+
+  // Remove slide-right class after animation completes to reset for next update
+  setTimeout(() => {
+    alumniText.classList.remove('slide-right');
+  }, 1000); // Adjust the delay to match your CSS animation duration
 }
+
+
 
 // Update active slider span
 function updateAlumniActiveSpan(index) {
@@ -176,13 +197,30 @@ function startAlumniAutoSlide() {
 // Handle span click
 function handleAlumniSpanClick(index) {
   if (index !== alumniCurrentIndex) {
-    alumniCurrentIndex = index
-    renderAlumni() // Update content and reattach event listeners
-    resetAlumniAnimation() // Reset animation class
-    updateAlumniActiveSpan(alumniCurrentIndex)
-    restartAlumniAutoSlide()
+    alumniCurrentIndex = index;
+    
+    // Update content and reattach event listeners
+    renderAlumni();
+    
+    // Ensure DOM updates before adding the class
+    setTimeout(() => {
+      const alumniText = alumniTextContainer.querySelector('.alumuni-text');
+      alumniText.classList.add('slide-right');
+    }, 50); // Small delay to ensure DOM update before adding class
+    
+    // Remove the class after the animation completes
+    setTimeout(() => {
+      const alumniText = alumniTextContainer.querySelector('.alumuni-text');
+      alumniText.classList.remove('slide-right');
+    }, 1050); // 1000ms for animation + 50ms delay
+    
+    resetAlumniAnimation(); // Reset any previous animations
+    updateAlumniActiveSpan(alumniCurrentIndex);
+    restartAlumniAutoSlide();
   }
 }
+
+
 
 // Initialize slider span event listeners
 function initializeAlumniSliderSpanEventListeners() {
@@ -193,38 +231,63 @@ function initializeAlumniSliderSpanEventListeners() {
   })
 }
 
-// Handle touch and drag events
 function handleAlumniTouchDragEvents() {
-  let startX, endX
-
   alumniTextContainer.addEventListener('touchstart', (e) => {
     startX = e.touches[0].clientX
+    isDragging = false
     clearInterval(alumniAutoSlideInterval)
+  })
+
+  alumniTextContainer.addEventListener('touchmove', (e) => {
+    const currentX = e.touches[0].clientX
+    if (Math.abs(currentX - startX) > 5) { // Small threshold for detecting drag
+      isDragging = true
+    }
   })
 
   alumniTextContainer.addEventListener('touchend', (e) => {
     endX = e.changedTouches[0].clientX
-    if (startX > endX) {
-      showNextAlumni()
-    } else {
-      showPrevAlumni()
+    if (isDragging) {
+      if (startX > endX) {
+        showNextAlumni()
+      } else {
+        showPrevAlumni()
+      }
     }
     restartAlumniAutoSlide()
+    isDragging = false
   })
 
   alumniTextContainer.addEventListener('mousedown', (e) => {
     startX = e.clientX
+    isDragging = false
     clearInterval(alumniAutoSlideInterval)
+  })
+
+  alumniTextContainer.addEventListener('mousemove', (e) => {
+    const currentX = e.clientX
+    if (Math.abs(currentX - startX) > 5) { // Small threshold for detecting drag
+      isDragging = true
+    }
   })
 
   alumniTextContainer.addEventListener('mouseup', (e) => {
     endX = e.clientX
-    if (startX > endX) {
-      showNextAlumni()
-    } else {
-      showPrevAlumni()
+    if (isDragging) {
+      if (startX > endX) {
+        showNextAlumni()
+      } else {
+        showPrevAlumni()
+      }
     }
     restartAlumniAutoSlide()
+    isDragging = false
+  })
+
+  alumniTextContainer.addEventListener('click', (e) => {
+    if (isDragging) {
+      e.preventDefault() // Prevent link click during drag
+    }
   })
 }
 
