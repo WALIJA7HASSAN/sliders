@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+      <link rel="stylesheet"
+  href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
+  
+</head>
+<body>
+<!--  -->
+<!-- alumni -->
+<section class="alumuni" id="alumni-section">
+    <div class="alumuni-container">
+        <h3 class="alumuni-title">ALUMNI SUCCESS STORIES</h3>
+        <div class="alumuni-content">
+            <div class="alumuni-text-container">
+                <!-- Alumni testimonials will be injected here by JavaScript -->
+            </div>
+        </div>
+        <ul class="slider-spans-container">
+            <!-- Slider spans will be injected here by JavaScript -->
+        </ul>
+    </div>
+</section>
+
+
+
+    <!-- <script src="./app.js"></script> -->
+     <script>const alumuni = [
+  {
+    text: '“I took the leap of faith, and it has massively changed my business. . . I want to be a business owner, not an operator.” ',
+    name: '– COURTNEY EPPS',
+    occupation: 'Owner of OTB Tax and author of More Relaxing, Less Taxing',
+    imgsrc: './assets/alumuniImg1.png',
+    imgUrl: '#',
+  },
+  {
+    text: '“Business mastery is transformative. This is an opportunity to remove yourself from the weeds of your business and get ontop of your business.” ',
+    name: '– Adelle Archer and Garrett Ozar',
+    occupation: 'Co-founders of Eterneva',
+    imgsrc: './assets/alumuniImg2.png',
+    imgUrl: '#',
+  },
+  {
+    text: `“The business doesn't devour me anymore. It doesn't own me. I have freedom. I realized that letting it go, trusting, and hiring people better than me will allow me the time to do what I'm good at.” `,
+    name: '– Daniel Lanigan',
+    occupation: 'Founder of Lord Hobo Brewing Co',
+    imgsrc: './assets/alumuniImg3.png',
+    imgUrl: '#',
+  },
+  {
+    text: '“We’re still in our first year officially, and we will hit right around a million dollars in revenue.” ',
+    name: '-Brian McDonell',
+    occupation: 'President/ Co-founder of Melin',
+    imgsrc: './assets/alumuniImg4.png',
+    imgUrl: '#',
+  },
+  {
+    text: '“Business Mastery for me was a gateway into a whole new life experience. I justified getting involved because I thought it would be a great business expense and a new experience. I didn’t realize that it was going to open the door to not only improve my business, but other businesses, new voices, new perspectives… It really just gave me a whole other set of options that are positive.” ',
+    name: '-JASMINE PURSCELL',
+    occupation: 'Residential Construction Business Owner',
+    imgsrc: './assets/alumuniImg5.png',
+    imgUrl: '#',
+  },
+  {
+    text: '“Business Mastery is fulfillment. It’s living out your dream, and it’s motivating others to do the same.” ',
+    name: '-Cathy risigo wickline',
+    occupation: 'Business owner, Occupational Therapist, Nutritionist',
+    imgsrc: './assets/alumuniImg6.png',
+    imgUrl: '#',
+  },
+  {
+    text: '“Going to a Tony Robbins event and learning those skills in a way we can impact, has been the difference between, has been the difference-maker between business to where I can go from being a 20 year old kid making $8-$10/hr to less than 5 years later being a millionaire.” ',
+    name: '-Caleb Antonucci',
+    occupation: 'Owner of OurWorldEnergy',
+    imgsrc: './assets/alumuniImg7.png',
+    imgUrl: '#',
+  },
+  {
+    text: '“Business Mastery is an experience that allows you to overlay the essence of who you are and the nature of you with the opportunity to grow, make money and make an impact.” ',
+    name: '-Liliana Gil Valletta',
+    occupation: 'Business Owner',
+    imgsrc: './assets/alumuniImg8.jpg',
+    imgUrl: '#',
+  },]
+// Alumni section variables
+const alumniSliderSpansContainer = document.querySelector('.alumuni .slider-spans-container')
+const alumniTextContainer = document.querySelector('.alumuni-text-container')
+let alumniCurrentIndex = 0
+let alumniAutoSlideInterval
+
+// Create alumni HTML
+function createAlumniHTML(alumnus) {
+  return `
+    <div class="alumuni-text">
+      <a href="${alumnus.imgUrl}">
+        <img src="${alumnus.imgsrc}" alt="">
+      </a>
+      <div class="alumuni-testimnonials">
+        <i class="alumuni-p">${alumnus.text}</i>
+        <p class="alumuni-name">${alumnus.name}</p>
+        <p class="alumuni-occupation">${alumnus.occupation}</p>
+      </div>
+    </div>
+  `
+}
+
+// Create slider span HTML
+function createAlumniSliderSpanHTML(index) {
+  return `<li class="slider-span-container" data-index="${index}"><span class="slider-span"></span></li>`
+}
+
+// Render alumni testimonials
+function renderAlumni() {
+  alumniTextContainer.innerHTML = createAlumniHTML(alumuni[alumniCurrentIndex])
+  alumniSliderSpansContainer.innerHTML = alumuni
+    .map((_, index) => createAlumniSliderSpanHTML(index))
+    .join('')
+  updateAlumniActiveSpan(alumniCurrentIndex) // Initialize the first testimonial
+  initializeAlumniSliderSpanEventListeners() // Reattach event listeners
+}
+
+// Update active slider span
+function updateAlumniActiveSpan(index) {
+  const sliderSpans = document.querySelectorAll('.alumuni .slider-span-container')
+  sliderSpans.forEach((container, idx) => {
+    const span = container.querySelector('.slider-span')
+    span.classList.toggle('active-slider-span', idx === index)
+  })
+}
+
+// Reset animation class
+function resetAlumniAnimation() {
+  const alumniText = alumniTextContainer.querySelector('.alumuni-text')
+  alumniText.classList.remove('slide-right', 'slide-left')
+}
+
+// Show next alumni
+function showNextAlumni() {
+  resetAlumniAnimation()
+  alumniTextContainer
+    .querySelector('.alumuni-text')
+    .classList.add('slide-right')
+
+  alumniCurrentIndex = (alumniCurrentIndex + 1) % alumuni.length
+  renderAlumni() // Update content and reattach event listeners
+  restartAlumniAutoSlide()
+}
+
+// Show previous alumni
+function showPrevAlumni() {
+  resetAlumniAnimation()
+  alumniTextContainer
+    .querySelector('.alumuni-text')
+    .classList.add('slide-left')
+
+  alumniCurrentIndex = (alumniCurrentIndex - 1 + alumuni.length) % alumuni.length
+  renderAlumni() // Update content and reattach event listeners
+  restartAlumniAutoSlide()
+}
+
+// Restart auto slide
+function restartAlumniAutoSlide() {
+  clearInterval(alumniAutoSlideInterval)
+  startAlumniAutoSlide()
+}
+
+// Start auto slide
+function startAlumniAutoSlide() {
+  alumniAutoSlideInterval = setInterval(showNextAlumni, 2500)
+}
+
+// Handle span click
+function handleAlumniSpanClick(index) {
+  if (index !== alumniCurrentIndex) {
+    alumniCurrentIndex = index
+    renderAlumni() // Update content and reattach event listeners
+    resetAlumniAnimation() // Reset animation class
+    updateAlumniActiveSpan(alumniCurrentIndex)
+    restartAlumniAutoSlide()
+  }
+}
+
+// Initialize slider span event listeners
+function initializeAlumniSliderSpanEventListeners() {
+  document.querySelectorAll('.alumuni .slider-span-container').forEach((container) => {
+    container.addEventListener('click', (e) => {
+      handleAlumniSpanClick(parseInt(container.dataset.index))
+    })
+  })
+}
+
+// Handle touch and drag events
+function handleAlumniTouchDragEvents() {
+  let startX, endX
+
+  alumniTextContainer.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX
+    clearInterval(alumniAutoSlideInterval)
+  })
+
+  alumniTextContainer.addEventListener('touchend', (e) => {
+    endX = e.changedTouches[0].clientX
+    if (startX > endX) {
+      showNextAlumni()
+    } else {
+      showPrevAlumni()
+    }
+    restartAlumniAutoSlide()
+  })
+
+  alumniTextContainer.addEventListener('mousedown', (e) => {
+    startX = e.clientX
+    clearInterval(alumniAutoSlideInterval)
+  })
+
+  alumniTextContainer.addEventListener('mouseup', (e) => {
+    endX = e.clientX
+    if (startX > endX) {
+      showNextAlumni()
+    } else {
+      showPrevAlumni()
+    }
+    restartAlumniAutoSlide()
+  })
+}
+
+// Initialize the alumni slider
+renderAlumni()
+startAlumniAutoSlide()
+handleAlumniTouchDragEvents()
+
+</script>
+    
+    
+</body>
+</html>
