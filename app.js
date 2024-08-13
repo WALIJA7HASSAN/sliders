@@ -18,6 +18,7 @@ const testimonialContainer = document.querySelector(
 )
 const sliderSpansContainer = document.querySelector('.slider-spans-container')
 const iconLeft = document.querySelector('.icon-left')
+
 const iconRight = document.querySelector('.icon-right')
 let currentIndex = 0
 let autoSlideInterval
@@ -78,6 +79,8 @@ function showNextTestimonial() {
 
 // Show previous testimonial
 function showPrevTestimonial() {
+    console.log("prev");
+    
   resetAnimation()
   testimonialContainer
     .querySelector('.testimonial-text')
@@ -132,44 +135,91 @@ function initializeEventListeners() {
 
 // Handle touch and drag events
 function handleTouchDragEvents() {
-  let startX, endX
+  let startX,
+    currentX,
+    isDragging = false
 
   testimonialContainer.addEventListener('touchstart', (e) => {
     startX = e.touches[0].clientX
+    isDragging = true
     clearInterval(autoSlideInterval)
   })
 
-  testimonialContainer.addEventListener('touchend', (e) => {
-    endX = e.changedTouches[0].clientX
-    if (startX > endX) {
-      showNextTestimonial()
-    } else {
-      showPrevTestimonial()
+  testimonialContainer.addEventListener('touchmove', (e) => {
+    if (isDragging) {
+      currentX = e.touches[0].clientX
+      const difference = currentX - startX
+      testimonialContainer.style.transform = `translateX(${difference}px)`
     }
-    restartAutoSlide()
+  })
+
+  testimonialContainer.addEventListener('touchend', (e) => {
+    handleDragEnd(e.changedTouches[0].clientX)
   })
 
   testimonialContainer.addEventListener('mousedown', (e) => {
     startX = e.clientX
+    isDragging = true
     clearInterval(autoSlideInterval)
   })
 
+  testimonialContainer.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+      currentX = e.clientX
+      const difference = currentX - startX
+      testimonialContainer.style.transform = `translateX(${difference}px)`
+    }
+  })
+
   testimonialContainer.addEventListener('mouseup', (e) => {
-    endX = e.clientX
-    if (startX > endX) {
+    handleDragEnd(e.clientX)
+  })
+
+  testimonialContainer.addEventListener('mouseleave', (e) => {
+    if (isDragging) {
+      handleDragEnd(e.clientX)
+    }
+  })
+
+  function handleDragEnd(endX) {
+    isDragging = false
+    const difference = endX - startX
+
+    // Updated threshold for smaller drag difference
+    const threshold = 20 // Lower threshold for smaller drags
+
+    if (difference < -threshold) {
+      // Dragging left
       showNextTestimonial()
-    } else {
+    } else if (difference > threshold) {
+      // Dragging right
       showPrevTestimonial()
     }
+
+    // Reset transform and apply transition
+    testimonialContainer.style.transition = 'transform 0.2s ease' // Reduced transition time for quick response
+    testimonialContainer.style.transform = 'translateX(0)'
+
     restartAutoSlide()
-  })
+
+    setTimeout(() => {
+      testimonialContainer.style.transition = ''
+    }, 200) // Shorter timeout after animation
+  }
 }
+
 
 // Initialize the slider
 renderTestimonials()
 initializeEventListeners()
 startAutoSlide()
+
 handleTouchDragEvents()
+
+document.addEventListener('DOMContentLoaded', () => {
+  initializeEventListeners()
+})
+
 
 
 // Alumni data

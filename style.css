@@ -15,6 +15,7 @@ body{
 .testimonials{
     background: #EBF3FF;
     width: 100%;
+    
 }
 .testimonial-container{
     padding: 1rem;
@@ -61,6 +62,7 @@ body{
      max-width: 100%;
      position: relative;
      overflow: hidden;
+      user-select: none;
 
 }
 .testimonial-text{
@@ -189,7 +191,7 @@ padding: 1rem;
     min-width: 100%;
     flex-shrink: 0;
     padding: 0 2.5rem;
-    
+    user-select: none;
 }
 .dragged {
     user-select: none;

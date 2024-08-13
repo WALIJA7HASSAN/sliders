@@ -122,6 +122,9 @@ function createAlumniSliderSpanHTML(index) {
 // Render alumni testimonials
 // Render alumni testimonials
 function renderAlumni() {
+     // Disable links while dragging
+  const links = alumniTextContainer.querySelectorAll('a');
+  links.forEach(link => link.style.pointerEvents = isDragging ? 'none' : 'auto');
   // Update content
   alumniTextContainer.innerHTML = createAlumniHTML(alumuni[alumniCurrentIndex]);
   
@@ -232,63 +235,72 @@ function initializeAlumniSliderSpanEventListeners() {
 }
 
 function handleAlumniTouchDragEvents() {
+  let startX, currentX, isDragging = false;
+  
   alumniTextContainer.addEventListener('touchstart', (e) => {
-    startX = e.touches[0].clientX
-    isDragging = false
-    clearInterval(alumniAutoSlideInterval)
-  })
+    startX = e.touches[0].clientX;
+    isDragging = true;
+    clearInterval(alumniAutoSlideInterval);
+  });
 
   alumniTextContainer.addEventListener('touchmove', (e) => {
-    const currentX = e.touches[0].clientX
-    if (Math.abs(currentX - startX) > 5) { // Small threshold for detecting drag
-      isDragging = true
+    if (isDragging) {
+      currentX = e.touches[0].clientX;
+      const difference = currentX - startX;
+      alumniTextContainer.style.transform = `translateX(${difference}px)`;
     }
-  })
+  });
 
   alumniTextContainer.addEventListener('touchend', (e) => {
-    endX = e.changedTouches[0].clientX
-    if (isDragging) {
-      if (startX > endX) {
-        showNextAlumni()
-      } else {
-        showPrevAlumni()
-      }
-    }
-    restartAlumniAutoSlide()
-    isDragging = false
-  })
+    handleAlumniDragEnd(e.changedTouches[0].clientX);
+  });
 
   alumniTextContainer.addEventListener('mousedown', (e) => {
-    startX = e.clientX
-    isDragging = false
-    clearInterval(alumniAutoSlideInterval)
-  })
+    startX = e.clientX;
+    isDragging = true;
+    clearInterval(alumniAutoSlideInterval);
+  });
 
   alumniTextContainer.addEventListener('mousemove', (e) => {
-    const currentX = e.clientX
-    if (Math.abs(currentX - startX) > 5) { // Small threshold for detecting drag
-      isDragging = true
+    if (isDragging) {
+      currentX = e.clientX;
+      const difference = currentX - startX;
+      alumniTextContainer.style.transform = `translateX(${difference}px)`;
     }
-  })
+  });
 
   alumniTextContainer.addEventListener('mouseup', (e) => {
-    endX = e.clientX
-    if (isDragging) {
-      if (startX > endX) {
-        showNextAlumni()
-      } else {
-        showPrevAlumni()
-      }
-    }
-    restartAlumniAutoSlide()
-    isDragging = false
-  })
+    handleAlumniDragEnd(e.clientX);
+  });
 
-  alumniTextContainer.addEventListener('click', (e) => {
+  alumniTextContainer.addEventListener('mouseleave', (e) => {
     if (isDragging) {
-      e.preventDefault() // Prevent link click during drag
+      handleAlumniDragEnd(e.clientX);
     }
-  })
+  });
+
+  function handleAlumniDragEnd(endX) {
+    isDragging = false;
+    const difference = endX - startX;
+
+    // Updated threshold for smaller drag difference
+    const threshold = 20; // Lower threshold for smaller drags
+
+    if (difference < -threshold) { // Dragging left
+      showNextAlumni();
+    } else if (difference > threshold) { // Dragging right
+      showPrevAlumni();
+    }
+
+    alumniTextContainer.style.transition = 'transform 0.2s ease'; // Reduced transition time for quick response
+    alumniTextContainer.style.transform = 'translateX(0)';
+
+    restartAlumniAutoSlide();
+    
+    setTimeout(() => {
+      alumniTextContainer.style.transition = '';
+    }, 200); // Shorter timeout after animation
+  }
 }
 
 // Initialize the alumni slider
