@@ -24,7 +24,7 @@ ON THE PLANET</h3>
                 <div class="trainers">
                     <div id="trainer1" class="trainer-div higlight-trainer">
                     <div class="trainer-img">
-                        <img src="./assets/trainerImg1.jpg" alt="">
+                        <img src="./assets/trainerImg1 copy.jpg" alt="">
                     </div>
                     <div class="trainer-text">
                         <h4 class="trainer-name">TONY ROBBINS</h4>
@@ -115,9 +115,182 @@ ON THE PLANET</h3>
     </div>
 </section>
 
-
-
 <script>
+    const trainersContainer = document.querySelector('.trainer-content');
+    const trainers = document.querySelectorAll('.trainers');
+    const trainerSpans = document.querySelectorAll('.slider-controls .slider-span');
+    let currentTrainerIndex = 0;
+    let trainerAutoSlideInterval;
+    let startX, isDragging = false, currentTranslate = 0, prevTranslate = 0, animationID;
+
+    // Function to update active trainer and span
+    function updateTrainer(index, direction = 'right') {
+        // Ensure index is within the bounds
+        if (index < 0) index = trainers.length - 1;
+        if (index >= trainers.length) index = 0;
+
+        // Reset animation classes and visibility from all trainers
+        trainers.forEach((trainer) => {
+            trainer.classList.remove('slide-left', 'slide-right');
+            trainer.style.visibility = 'hidden'; // Hide all trainers
+        });
+
+        // Add new animation class to the currently active trainer
+        trainers[index].classList.add('slide-right'); // Always use slide-right animation
+        trainers[index].style.visibility = 'visible'; // Show the current trainer
+
+        // Calculate the correct translateX value based on the index
+        trainersContainer.style.transform = `translateX(-${index * 100}%)`;
+
+        // Update the active span
+        trainerSpans.forEach((span, i) => {
+            span.classList.toggle('active-slider-span', i === index);
+        });
+
+        currentTrainerIndex = index;
+    }
+
+    // Initialize the first trainer correctly
+    function initializeTrainers() {
+        trainers.forEach((trainer) => {
+            trainer.classList.add('slide-right'); // Apply the slide-right animation to all trainers initially
+        });
+        updateTrainer(currentTrainerIndex, 'right');
+    }
+
+    initializeTrainers(); // Call initialization on load
+
+    // Auto slide logic
+    function startTrainerAutoSlide() {
+        trainerAutoSlideInterval = setInterval(() => {
+            let newIndex = (currentTrainerIndex + 1) % trainers.length;
+            updateTrainer(newIndex, 'right');
+        }, 2500); // Change trainers every 2.5 seconds
+    }
+
+    startTrainerAutoSlide();
+
+    // Event listeners for slider spans
+    trainerSpans.forEach((span, index) => {
+        span.addEventListener('click', () => {
+            let direction = index < currentTrainerIndex ? 'left' : 'right';
+            updateTrainer(index, direction);
+            clearInterval(trainerAutoSlideInterval); // Stop auto sliding when user interacts
+            startTrainerAutoSlide(); // Restart auto sliding
+        });
+    });
+
+    // Dragging functionality
+    function setPositionByIndex() {
+        trainersContainer.style.transform = `translateX(-${currentTrainerIndex * 100}%)`;
+        trainersContainer.style.transition = 'transform 0.3s ease-out'; // Smooth transition
+    }
+
+    function touchStart(event) {
+        startX = event.touches[0].clientX;
+        isDragging = true;
+        animationID = requestAnimationFrame(animation);
+        trainersContainer.classList.add('grabbing');
+        clearInterval(trainerAutoSlideInterval); // Stop auto sliding when user interacts
+    }
+
+    function touchMove(event) {
+        if (isDragging) {
+            const currentX = event.touches[0].clientX;
+            currentTranslate = prevTranslate + currentX - startX;
+            trainersContainer.style.transform = `translateX(${currentTranslate}px)`;
+            trainersContainer.style.transition = 'none'; // Disable transition during drag
+        }
+    }
+
+    function touchEnd() {
+        isDragging = false;
+        cancelAnimationFrame(animationID);
+        trainersContainer.classList.remove('grabbing');
+
+        const movedBy = currentTranslate - prevTranslate;
+
+        if (movedBy < -100) { // Dragged left
+            currentTrainerIndex = (currentTrainerIndex + 1) % trainers.length;
+            updateTrainer(currentTrainerIndex, 'right');
+        } else if (movedBy > 100) { // Dragged right
+            currentTrainerIndex = (currentTrainerIndex - 1 + trainers.length) % trainers.length;
+            updateTrainer(currentTrainerIndex, 'right'); // Always slide-right
+        } else {
+            updateTrainer(currentTrainerIndex);
+        }
+
+        // Update position to account for looping
+        setPositionByIndex();
+        prevTranslate = currentTrainerIndex * -window.innerWidth;
+        startTrainerAutoSlide(); // Restart auto sliding
+    }
+
+    function animation() {
+        if (isDragging) {
+            requestAnimationFrame(animation);
+        }
+    }
+
+    // Add event listeners for touch events
+    trainersContainer.addEventListener('touchstart', touchStart);
+    trainersContainer.addEventListener('touchmove', touchMove);
+    trainersContainer.addEventListener('touchend', touchEnd);
+
+    // Add event listeners for mouse events
+    function mouseStart(event) {
+        startX = event.clientX;
+        isDragging = true;
+        animationID = requestAnimationFrame(animation);
+        trainersContainer.classList.add('grabbing');
+        clearInterval(trainerAutoSlideInterval); // Stop auto sliding when user interacts
+    }
+
+    function mouseMove(event) {
+        if (isDragging) {
+            const currentX = event.clientX;
+            currentTranslate = prevTranslate + currentX - startX;
+            trainersContainer.style.transform = `translateX(${currentTranslate}px)`;
+            trainersContainer.style.transition = 'none'; // Disable transition during drag
+        }
+    }
+
+    function mouseEnd() {
+        isDragging = false;
+        cancelAnimationFrame(animationID);
+        trainersContainer.classList.remove('grabbing');
+
+        const movedBy = currentTranslate - prevTranslate;
+
+        if (movedBy < -100) { // Dragged left
+            currentTrainerIndex = (currentTrainerIndex + 1) % trainers.length;
+            updateTrainer(currentTrainerIndex, 'right');
+        } else if (movedBy > 100) { // Dragged right
+            currentTrainerIndex = (currentTrainerIndex - 1 + trainers.length) % trainers.length;
+            updateTrainer(currentTrainerIndex, 'right'); // Always slide-right
+        } else {
+            updateTrainer(currentTrainerIndex);
+        }
+
+        // Update position to account for looping
+        setPositionByIndex();
+        prevTranslate = currentTrainerIndex * -window.innerWidth;
+        startTrainerAutoSlide(); // Restart auto sliding
+    }
+
+    // Add event listeners for mouse events
+    trainersContainer.addEventListener('mousedown', mouseStart);
+    trainersContainer.addEventListener('mousemove', mouseMove);
+    trainersContainer.addEventListener('mouseup', mouseEnd);
+
+    // Prevent default drag behavior
+    trainersContainer.addEventListener('dragstart', (e) => e.preventDefault());
+
+</script>
+
+
+
+<!-- <script>
     // Select elements
 const trainersContainer = document.querySelector('.trainer-content');
 const trainers = document.querySelectorAll('.trainers'); // Ensure this matches your HTML structure
@@ -154,27 +327,7 @@ function updateTrainer(index, direction = 'right') {
     currentTrainerIndex = index;
 }
 
-// function updateTrainer(index, direction = 'right') {
-//     // Ensure index is within the bounds
-//     if (index < 0) index = trainers.length - 1;
-//     if (index >= trainers.length) index = 0;
 
-//     // Reset animation classes from all trainers
-//     trainers.forEach(trainer => trainer.classList.remove('slide-left', 'slide-right'));
-    
-//     // Add new animation class to the currently active trainer
-//     trainers[index].classList.add(direction === 'left' ? 'slide-left' : 'slide-right');
-    
-//     // Calculate the correct translateX value based on the index
-//     trainersContainer.style.transform = `translateX(-${index * 100}%)`;
-    
-//     // Update the active span
-//     trainerSpans.forEach((span, i) => {
-//         span.classList.toggle('active-slider-span', i === index);
-//     });
-    
-//     currentTrainerIndex = index;
-// }
 
 // Auto slide logic
 function startTrainerAutoSlide() {
@@ -253,120 +406,7 @@ trainers.forEach((trainer, index) => {
 
 trainersContainer.addEventListener('dragstart', (e) => e.preventDefault());
 
-</script>
-<!-- <script>
-    // Select elements
-const trainersContainer = document.querySelector('.trainer-content');
-const trainers = document.querySelectorAll('.trainers');
-const trainerSpans = document.querySelectorAll('.slider-controls .slider-span');
-let currentTrainerIndex = 0;
-let trainerAutoSlideInterval;
-let startX, isDragging = false, currentTranslate = 0, prevTranslate = 0, animationID;
+</script> -->
 
-// Function to update active trainer and span
-function updateTrainer(index, direction = 'right') {
-    // Ensure index is within the bounds
-    if (index < 0) index = trainers.length - 1;
-    if (index >= trainers.length) index = 0;
-
-    // Reset animation classes by triggering reflow
-    trainersContainer.classList.remove('slide-left', 'slide-right');
-    void trainersContainer.offsetWidth; // Trigger reflow
-    
-    // Add new animation based on the direction
-    trainersContainer.classList.add(direction === 'left' ? 'slide-left' : 'slide-right');
-    
-    // Calculate the correct translateX value based on the index
-    trainersContainer.style.transform = `translateX(-${index * 100}%)`;
-    
-    // Update the active span
-    trainerSpans.forEach((span, i) => {
-        span.classList.toggle('active-slider-span', i === index);
-    });
-    
-    currentTrainerIndex = index;
-}
-
-// Auto slide logic
-function startTrainerAutoSlide() {
-    trainerAutoSlideInterval = setInterval(() => {
-        let newIndex = (currentTrainerIndex + 1) % trainers.length;
-        updateTrainer(newIndex, 'right');
-    }, 2500); // Change trainers every 2.5 seconds
-}
-
-startTrainerAutoSlide();
-
-// Event listeners for slider spans
-trainerSpans.forEach((span, index) => {
-    span.addEventListener('click', () => {
-        let direction = index < currentTrainerIndex ? 'left' : 'right';
-        updateTrainer(index, direction);
-        clearInterval(trainerAutoSlideInterval); // Stop auto sliding when user interacts
-        startTrainerAutoSlide(); // Restart auto sliding
-    });
-});
-
-// Dragging functionality
-function setPositionByIndex() {
-    trainersContainer.style.transform = `translateX(-${currentTrainerIndex * 100}%)`;
-}
-
-function touchStart(index) {
-    return function(event) {
-        startX = event.touches[0].clientX;
-        isDragging = true;
-        animationID = requestAnimationFrame(animation);
-        trainersContainer.classList.add('grabbing');
-        clearInterval(trainerAutoSlideInterval); // Stop auto sliding when user interacts
-    };
-}
-
-function touchMove(event) {
-    if (isDragging) {
-        const currentX = event.touches[0].clientX;
-        currentTranslate = prevTranslate + currentX - startX;
-    }
-}
-
-function touchEnd() {
-    isDragging = false;
-    cancelAnimationFrame(animationID);
-    trainersContainer.classList.remove('grabbing');
-
-    const movedBy = currentTranslate - prevTranslate;
-
-    if (movedBy < -100 && currentTrainerIndex < trainers.length - 1) {
-        currentTrainerIndex += 1;
-    }
-
-    if (movedBy > 100 && currentTrainerIndex > 0) {
-        currentTrainerIndex -= 1;
-    }
-
-    setPositionByIndex();
-    prevTranslate = currentTranslate;
-    startTrainerAutoSlide(); // Restart auto sliding
-}
-
-function animation() {
-    trainersContainer.style.transform = `translateX(${currentTranslate}px)`;
-    if (isDragging) requestAnimationFrame(animation);
-}
-
-// Add event listeners for touch events
-trainers.forEach((trainer, index) => {
-    const touchStartHandler = touchStart(index);
-    trainer.addEventListener('touchstart', touchStartHandler);
-    trainer.addEventListener('touchmove', touchMove);
-    trainer.addEventListener('touchend', touchEnd);
-});
-
-trainersContainer.addEventListener('dragstart', (e) => e.preventDefault());
-
-
-</script>
-     -->
-    
 </body>
 </html>
