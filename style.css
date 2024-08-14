@@ -41,9 +41,9 @@ body{
     align-items: center;
     justify-content: center;
     gap: 1.5rem;
-    /* margin-block: 1rem 0.7rem; */
    
     list-style: none;
+      
 }
 
 .slider-spans-container li{
@@ -95,12 +95,29 @@ border-radius: 50%;
 .slide-left {
   animation: sliderleft 0.5s ease;
 }
+.no-pointer-events {
+    pointer-events: none;
+}
+
+.no-pointer-events .see-more-btn {
+    pointer-events: auto;
+}
+.trainer{
+    background: #F9FBFF;
+}
 
 .trainer-container{
 padding: 1rem;
     max-width: 1280px;
     margin-inline: auto;
 }
+
+.trainer-title{
+    padding: 1rem;
+    max-width: 1280px;
+    margin-inline: auto;
+}
+
 .trainer-title h3{
     color: #1d3464;
     font-size: 28px;
@@ -121,6 +138,10 @@ padding: 1rem;
 }
 
 /* trainer */
+.trainer-p-hidden{
+   height: 0;
+   overflow: hidden;
+}
 
 .trainer-title{
     text-align: center;
@@ -174,6 +195,10 @@ margin-top: 0.7rem;
 .trainer-text i,.trainer-text p{
 font-size: 18px ;
 }
+.trainer-text ul{
+padding-left: 2rem;
+list-style: disc;
+}
 .see-more-btn{
     color: #435780;
     background: transparent;
@@ -186,22 +211,27 @@ font-size: 18px ;
 
 }
 .trainer-text-container{
-    margin-block: 3rem;
+    margin-block: 3rem 2rem;
     display: grid;
    width: 300%;
+   align-items: start;
+   
    grid-template-columns: 1fr 1fr 1fr;
    /* animation: slideright 0.5s ease; */
    overflow: hidden;
-    
+      background: #F9FBFF;
+     
 }
 .trainers{
     visibility: hidden;
+    transition: height 0.3s ease;
 }
 .trainers.visible {
   visibility: visible;
 }
 .trainer-content{
     transition: transform 1s ease-out;
+  
 }
 .grabbing {
   cursor: grabbing;
@@ -233,6 +263,9 @@ font-size: 24px;
 
 .trainer-container{
     padding-inline: 5rem;
+}
+.trainer-title{
+     padding-inline: 5rem;
 }
 
 
